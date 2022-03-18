@@ -1,8 +1,13 @@
 from flask import Flask, jsonify, redirect, session, request
 import sqlite3
 
+def handleCORS(response):
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
+
 server = Flask(__name__)
 server.secret_key = "secretKey"
+server.after_request(handleCORS)
 
 
 @server.route("/", methods=["GET"])

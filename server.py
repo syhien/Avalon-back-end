@@ -1,58 +1,52 @@
-from flask import Flask, jsonify, redirect, session, request
-import sqlite3
+from crypt import methods
+from mimetypes import init
+from flask import Flask, jsonify, redirect, session, request, abort
+
+
+class Game:
+    def __init__(self) -> None:
+        self.players = []
+        self.mission = []
+
 
 def handleCORS(response):
-    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers["Access-Control-Allow-Origin"] = "*"
     return response
+
 
 server = Flask(__name__)
 server.secret_key = "secretKey"
 server.after_request(handleCORS)
 
+# key: 房间号 int
+# value: 游戏 Game
+games = {}
 
-@server.route("/", methods=["GET"])
-def defaultPage():
-    if (
-        session.get("name") is None
-        or session.get("qq") is None
-        or session.get("seat") is None
-    ):
-        return redirect("/info")
-
-
-# 注册一个用户
-@server.route("/info", methods=["POST"])
-def newInfo():
-    if request.args.get("name") is None:
-        return "Missing name"
+# 加入房间
+@server.route("/join", methods=["POST"])
+def joinGame():
+    if request.args.get("game") is None or request.args.get("name") is None:
+        abort(400)
+    room = int(request.args.get("game"))
+    if room not in games:
+        games[room] = Game()
+    game = games[room]
     name = request.args.get("name")
-    if request.args.get("seat") is None:
-        return "Missing seat"
-    seat = int(request.args.get("seat"))
-    qq = -1
-    if request.args.get("qq") is not None:
-        qq = int(request.args.get("qq"))
-    session["name"] = name
-    session["qq"] = qq
-    session["seat"] = seat
-    return "success"
+    if name not in game.players:
+        game.players.append(name)
+    server.logger.debug(games[room].players)
+    return jsonify(game=room, players=games[room].players)
 
 
-# 获取信息
-@server.route("/info", methods=["GET"])
-def getInfo():
-    if (
-        session.get("name") is None
-        or session.get("qq") is None
-        or session.get("seat") is None
-    ):
-        return "Please Register first"
-    json = {
-        "name": session.get("name"),
-        "qq": int(session.get("qq")),
-        "seat": int(session.get("seat")),
-    }
-    return jsonify(json)
+# 获取房间内所有玩家
+@server.route("/players", methods=["GET"])
+def getAllPlayers():
+    if request.args.get("game") is None:
+        abort(400)
+    room = int(request.args.get("game"))
+    if room not in games:
+        abort(404)
+    return jsonify(game=room, players=games[room].players)
 
 
 if __name__ == "__main__":

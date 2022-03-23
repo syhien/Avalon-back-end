@@ -7,10 +7,22 @@ class Game:
     def __init__(self) -> None:
         self.players = []
         self.mission = []
+        self.readyPlayers = []
+        self.job = 0
+        # stage
+        # 0: wait everyone to ready
+        # 1: form team
+        # 2: vote for team
+        # 3: vote for mission
+        # 4: result
+        self.stage = 0
 
 
 def handleCORS(response):
     response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "X-Requested-With,content-type"
+    response.headers["Access-Control-Allow-Credentials"] = "true"
     return response
 
 

@@ -47,8 +47,27 @@ def joinGame():
     if name not in game.players:
         game.players.append(name)
     server.logger.debug(games[room].players)
-    return jsonify(game=room, players=games[room].players)
+    return jsonify(
+        game=room, players=games[room].players, readyPlayers=games[room].readyPlayers
+    )
 
+# 玩家准备，可以开始游戏
+@server.route("/readyGame", methods=["POST"])
+def readyGame():
+    if request.args.get("game") is None or request.args.get("name") is None:
+        abort(400)
+    room = int(request.args.get("game"))
+    if room not in games:
+        games[room] = Game()
+    game = games[room]
+    name = request.args.get("name")
+    if name not in game.players:
+        abort(404)
+    if name not in game.readyPlayers:
+        game.readyPlayers.append(name)
+    return jsonify(
+        game=room, players=games[room].players, readyPlayers=games[room].readyPlayers
+    )
 
 # 获取房间内所有玩家
 @server.route("/players", methods=["GET"])
@@ -58,7 +77,9 @@ def getAllPlayers():
     room = int(request.args.get("game"))
     if room not in games:
         abort(404)
-    return jsonify(game=room, players=games[room].players)
+    return jsonify(
+        game=room, players=games[room].players, readyPlayers=games[room].readyPlayers
+    )
 
 
 if __name__ == "__main__":

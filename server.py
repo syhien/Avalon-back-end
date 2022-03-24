@@ -44,14 +44,14 @@ games = {}
 def joinGame():
     if request.args.get("game") is None or request.args.get("name") is None:
         abort(400)
+    name = request.args.get("name")
     room = int(request.args.get("game"))
     if room not in games:
         games[room] = Game()
     game = games[room]
     game.number = room
-    if game.locked:
+    if game.locked and name not in game.players:
         return abort(404)
-    name = request.args.get("name")
     if name not in game.players:
         game.players.append(name)
     server.logger.debug(games[room].players)
@@ -67,9 +67,9 @@ def readyGame():
         abort(400)
     room = int(request.args.get("game"))
     game = games[room]
-    if game.locked:
-        return abort(404)
     name = request.args.get("name")
+    if game.locked and name not in game.players:
+        return abort(404)
     if name not in game.players:
         abort(404)
     if name not in game.readyPlayers:

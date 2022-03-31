@@ -2,7 +2,6 @@ from flask import Flask, jsonify, request, abort
 from datetime import date
 import random
 
-
 class Game:
     def __init__(self) -> None:
         self.number = -1

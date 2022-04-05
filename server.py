@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request, abort
 from datetime import date
 import random
+from flask_cors import CORS
 
 class Game:
     def __init__(self) -> None:
@@ -22,17 +23,9 @@ class Game:
         self.stage = 0
 
 
-def handleCORS(response):
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
-    response.headers["Access-Control-Allow-Headers"] = "X-Requested-With,content-type"
-    response.headers["Access-Control-Allow-Credentials"] = "true"
-    return response
-
-
 server = Flask(__name__)
 server.secret_key = "secretKey"
-server.after_request(handleCORS)
+CORS(server)
 
 # key: 房间号 int
 # value: 游戏 Game

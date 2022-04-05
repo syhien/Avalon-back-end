@@ -14,6 +14,8 @@ class Game:
         self.seenPlayersMap = {}
 
         self.currentLeader = 0
+        self.leaderCount = 0
+        self.team = []
         self.job = 0
         # stage
         # 1: form team
@@ -129,6 +131,9 @@ def generateIdentity(game):
     random.seed(game.number + date.today().toordinal())
     random.shuffle(identities)
     game.currentLeader = random.randint(0, len(game.players) - 1)
+    game.leaderCount = 1
+    game.job = 1
+    game.stage = 1
 
     for player in game.players:
         game.identityMap[player] = identities[game.players.index(player)]
@@ -201,6 +206,33 @@ def getIdentity():
         seenPlayers=game.seenPlayersMap[name],
     )
 
+@server.route("/formTeam", methods=["GET"])
+def waitLeader():
+    if request.args.get("game") is None or request.args.get("name") is None:
+        abort(404)
+    room = int(request.args.get("game"))
+    game = games[room]
+    name = request.args.get("name")
+    if name not in game.players:
+        abort(404)
+    return jsonify(game=room, leader=game.currentLeader, leaderCount=game.leaderCount, team=game.team)
+
+@server.route("formTeam", methods=["POST"])
+def formTeam():
+    if request.args.get("game") is None or request.args.get("name") is None:
+        abort(404)
+    room = int(request.args.get("game"))
+    game = games[room]
+    name = request.args.get("name")
+    if name != game.players[game.currentLeader]:
+        abort(400)
+    if request.args.get("team") is None:
+        abort(404)
+    team = request.args.get("team")
+    if len(team) <= len(game.players):
+        abort(400)
+    game.team = team
+    return jsonify(game=room, leader=game.currentLeader, leaderCount=game.leaderCount, team=game.team)
 
 # 获取房间内所有玩家
 @server.route("/players", methods=["GET"])

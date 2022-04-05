@@ -12,9 +12,9 @@ class Game:
         self.identityMap = {}
         self.seenPlayersMap = {}
 
+        self.currentLeader = 0
         self.job = 0
         # stage
-        # 0: wait everyone to ready
         # 1: form team
         # 2: vote for team
         # 3: vote for mission
@@ -135,6 +135,7 @@ def generateIdentity(game):
     identities = identitiesMap[len(game.players)]
     random.seed(game.number + date.today().toordinal())
     random.shuffle(identities)
+    game.currentLeader = random.randint(0, len(game.players) - 1)
 
     for player in game.players:
         game.identityMap[player] = identities[game.players.index(player)]

@@ -217,7 +217,7 @@ def waitLeader():
         abort(404)
     return jsonify(game=room, leader=game.currentLeader, leaderCount=game.leaderCount, team=game.team)
 
-@server.route("formTeam", methods=["POST"])
+@server.route("/formTeam", methods=["POST"])
 def formTeam():
     if request.args.get("game") is None or request.args.get("name") is None:
         abort(404)

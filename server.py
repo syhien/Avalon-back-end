@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request, abort
-from datetime import date
+import time
 import random
 from flask_cors import CORS
 
@@ -128,7 +128,7 @@ def generateIdentity(game):
         ],
     }
     identities = identitiesMap[len(game.players)]
-    random.seed(game.number + date.today().toordinal())
+    random.seed(time.time())
     random.shuffle(identities)
     game.currentLeader = random.randint(0, len(game.players) - 1)
     game.leaderCount = 1

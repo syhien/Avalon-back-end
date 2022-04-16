@@ -3,6 +3,7 @@ import time
 import random
 from flask_cors import CORS
 
+
 class Game:
     def __init__(self) -> None:
         self.number = -1
@@ -130,7 +131,8 @@ def generateIdentity(game):
     identities = identitiesMap[len(game.players)]
     random.seed(time.time())
     random.shuffle(identities)
-    game.currentLeader = random.randint(0, len(game.players) - 1)
+    # game.currentLeader = random.randint(0, len(game.players) - 1)
+    game.currentLeader = 0  # 先改为0
     game.leaderCount = 1
     game.job = 1
     game.stage = 1
@@ -202,9 +204,11 @@ def getIdentity():
         print(game.seenPlayersMap)
     return jsonify(
         game=room,
+        players=games[room].players,
         identity=game.identityMap[name],
         seenPlayers=game.seenPlayersMap[name],
     )
+
 
 @server.route("/formTeam", methods=["GET"])
 def waitLeader():
@@ -215,7 +219,14 @@ def waitLeader():
     name = request.args.get("name")
     if name not in game.players:
         abort(404)
-    return jsonify(game=room, leader=game.currentLeader, leaderCount=game.leaderCount, team=game.team)
+    return jsonify(
+        game=room,
+        players=games[room].players,
+        leader=game.currentLeader,
+        leaderCount=game.leaderCount,
+        team=game.team,
+    )
+
 
 @server.route("/formTeam", methods=["POST"])
 def formTeam():
@@ -229,10 +240,17 @@ def formTeam():
     if request.args.get("team") is None:
         abort(404)
     team = request.args.get("team")
-    if len(team) <= len(game.players):
-        abort(400)
+    # if len(team) <= len(game.players):
+    #     abort(400)
     game.team = team
-    return jsonify(game=room, leader=game.currentLeader, leaderCount=game.leaderCount, team=game.team)
+    return jsonify(
+        game=room,
+        players=games[room].players,
+        leader=game.currentLeader,
+        leaderCount=game.leaderCount,
+        team=game.team,
+    )
+
 
 # 获取房间内所有玩家
 @server.route("/players", methods=["GET"])

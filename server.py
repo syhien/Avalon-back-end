@@ -1,3 +1,4 @@
+from crypt import methods
 from flask import Flask, jsonify, request, abort
 import time
 import random
@@ -249,6 +250,25 @@ def formTeam():
         leader=game.currentLeader,
         leaderCount=game.leaderCount,
         team=game.team,
+    )
+
+# 获取当前游戏阶段
+@server.route("/status", methods=["GET"])
+def getGameStatus():
+    if request.args.get("game") is None:
+        abort(404)
+    room = int(request.args.get("game"))
+    game = games[room]
+    return jsonify(
+        game=room,
+        players=games[room].players,
+        leader=game.currentLeader,
+        leaderCount=game.leaderCount,
+        job=game.job,
+        stage=game.stage,
+        team=game.team,
+        identityMap=game.identityMap,
+        seenPlayersMap=game.seenPlayersMap,
     )
 
 

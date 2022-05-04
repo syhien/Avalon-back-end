@@ -211,8 +211,8 @@ def getIdentity():
     )
 
 
-@server.route("/formTeam", methods=["GET"])
-def waitLeader():
+@server.route("/voteTeam", methods=["GET"])
+def allVoteTeam():
     if request.args.get("game") is None or request.args.get("name") is None:
         abort(404)
     room = int(request.args.get("game"))

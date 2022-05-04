@@ -25,6 +25,7 @@ class Game:
         # 3: vote for mission
         # 4: result
         self.stage = 0
+        self.voteTeamMap = {}
 
 
 server = Flask(__name__)
@@ -137,6 +138,8 @@ def generateIdentity(game):
     game.leaderCount = 1
     game.job = 1
     game.stage = 1
+    game.voteTeamMap[1] = {}
+    game.voteTeamMap[1][1] = {'agree':[],'disagree':[]}
 
     for player in game.players:
         game.identityMap[player] = identities[game.players.index(player)]

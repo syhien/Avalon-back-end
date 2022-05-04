@@ -252,6 +252,31 @@ def formTeam():
         team=game.team,
     )
 
+# 所有玩家投票是否同意当前的队伍
+@server.route("/voteTeam", methods=["POST"])
+def voteTeam():
+    if request.args.get("game") is None or request.args.get("name") is None:
+        abort(404)
+    room = int(request.args.get("game"))
+    game = games[room]
+    name = request.args.get("name")
+    if name not in game.players:
+        abort(404)
+    if request.args.get("vote") is None:
+        abort(404)
+    vote = request.args.get("vote")
+    if vote not in ["agree", "disagree"]:
+        abort(404)
+    game.voteTeamMap[game.job][game.leaderCount][vote].append(name)
+    return jsonify(
+        game=room,
+        players=games[room].players,
+        leader=game.currentLeader,
+        leaderCount=game.leaderCount,
+        team=game.team,
+        voteResult=game.voteMap[game.job][game.leaderCount],
+    )
+
 # 获取当前游戏阶段
 @server.route("/status", methods=["GET"])
 def getGameStatus():

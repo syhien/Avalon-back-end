@@ -226,6 +226,7 @@ def allVoteTeam():
         leader=game.currentLeader,
         leaderCount=game.leaderCount,
         team=game.team,
+        voteResult=game.voteMap[game.job][game.leaderCount],
     )
 
 

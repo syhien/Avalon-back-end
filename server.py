@@ -139,7 +139,7 @@ def generateIdentity(game):
     game.job = 1
     game.stage = 1
     game.voteTeamMap[1] = {}
-    game.voteTeamMap[1][1] = {'agree':[],'disagree':[]}
+    game.voteTeamMap[1][1] = {"agree": [], "disagree": []}
 
     for player in game.players:
         game.identityMap[player] = identities[game.players.index(player)]
@@ -214,8 +214,8 @@ def getIdentity():
     )
 
 
-@server.route("/voteTeam", methods=["GET"])
-def allVoteTeam():
+@server.route("/formTeam", methods=["GET"])
+def getTeamLeader():
     if request.args.get("game") is None or request.args.get("name") is None:
         abort(404)
     room = int(request.args.get("game"))
@@ -228,8 +228,6 @@ def allVoteTeam():
         players=games[room].players,
         leader=game.currentLeader,
         leaderCount=game.leaderCount,
-        team=game.team,
-        voteResult=game.voteMap[game.job][game.leaderCount],
     )
 
 
@@ -244,7 +242,7 @@ def formTeam():
         abort(400)
     if request.args.get("team") is None:
         abort(404)
-    team = request.args.get("team")
+    team = request.args.getlist("team")
     # if len(team) <= len(game.players):
     #     abort(400)
     game.team = team
@@ -255,6 +253,26 @@ def formTeam():
         leaderCount=game.leaderCount,
         team=game.team,
     )
+
+
+@server.route("/voteTeam", methods=["GET"])
+def allVoteTeam():
+    if request.args.get("game") is None or request.args.get("name") is None:
+        abort(404)
+    room = int(request.args.get("game"))
+    game = games[room]
+    name = request.args.get("name")
+    if name not in game.players:
+        abort(404)
+    return jsonify(
+        game=room,
+        players=games[room].players,
+        leader=game.currentLeader,
+        job=game.job,
+        leaderCount=game.leaderCount,
+        team=game.team,
+    )
+
 
 # 所有玩家投票是否同意当前的队伍
 @server.route("/voteTeam", methods=["POST"])
@@ -278,8 +296,8 @@ def voteTeam():
         leader=game.currentLeader,
         leaderCount=game.leaderCount,
         team=game.team,
-        voteResult=game.voteMap[game.job][game.leaderCount],
     )
+
 
 # 获取当前游戏阶段
 @server.route("/status", methods=["GET"])

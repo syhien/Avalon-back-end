@@ -271,6 +271,7 @@ def allVoteTeam():
         job=game.job,
         leaderCount=game.leaderCount,
         team=game.team,
+        voteTeamMap=game.voteTeamMap,
     )
 
 
@@ -289,6 +290,12 @@ def voteTeam():
     vote = request.args.get("vote")
     if vote not in ["agree", "disagree"]:
         abort(404)
+    # 如果已投票，拒绝投票
+    if (
+        name in game.voteTeamMap[game.job][game.leaderCount]["agree"]
+        or name in game.voteTeamMap[game.job][game.leaderCount]["disagree"]
+    ):
+        abort(400)
     game.voteTeamMap[game.job][game.leaderCount][vote].append(name)
     return jsonify(
         game=room,

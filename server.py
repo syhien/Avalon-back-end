@@ -16,6 +16,7 @@ class Game:
         self.seenPlayersMap = {}
 
         self.currentLeader = 0
+        self.leaderMap = {}
         self.leaderCount = 0
         self.team = []
         self.job = 0
@@ -140,6 +141,8 @@ def generateIdentity(game):
     game.stage = 1
     game.voteTeamMap[1] = {}
     game.voteTeamMap[1][1] = {"agree": [], "disagree": []}
+    game.leaderMap[1] = {}
+    game.leaderMap[1][1] = game.currentLeader
 
     for player in game.players:
         game.identityMap[player] = identities[game.players.index(player)]
@@ -214,6 +217,12 @@ def getIdentity():
     )
 
 
+#
+# name
+# game
+# job
+# leaderCount
+#
 @server.route("/formTeam", methods=["GET"])
 def getTeamLeader():
     if request.args.get("game") is None or request.args.get("name") is None:
@@ -221,13 +230,14 @@ def getTeamLeader():
     room = int(request.args.get("game"))
     game = games[room]
     name = request.args.get("name")
+    job = int(request.args.get("job"))
+    leaderCount = int(request.args.get("leaderCount"))
     if name not in game.players:
         abort(404)
     return jsonify(
         game=room,
         players=games[room].players,
-        leader=game.currentLeader,
-        leaderCount=game.leaderCount,
+        leader=game.leaderMap[job][leaderCount],
     )
 
 
@@ -250,7 +260,6 @@ def formTeam():
         game=room,
         players=games[room].players,
         leader=game.currentLeader,
-        leaderCount=game.leaderCount,
         team=game.team,
     )
 
@@ -262,14 +271,14 @@ def allVoteTeam():
     room = int(request.args.get("game"))
     game = games[room]
     name = request.args.get("name")
+    job = int(request.args.get("job"))
+    leaderCount = int(request.args.get("leaderCount"))
     if name not in game.players:
         abort(404)
     return jsonify(
         game=room,
         players=games[room].players,
-        leader=game.currentLeader,
-        job=game.job,
-        leaderCount=game.leaderCount,
+        leader=game.leaderMap[job][leaderCount],
         team=game.team,
         voteTeamMap=game.voteTeamMap,
     )
@@ -283,6 +292,8 @@ def voteTeam():
     room = int(request.args.get("game"))
     game = games[room]
     name = request.args.get("name")
+    job = int(request.args.get("job"))
+    leaderCount = int(request.args.get("leaderCount"))
     if name not in game.players:
         abort(404)
     if request.args.get("vote") is None:
@@ -292,16 +303,15 @@ def voteTeam():
         abort(404)
     # 如果已投票，拒绝投票
     if (
-        name in game.voteTeamMap[game.job][game.leaderCount]["agree"]
-        or name in game.voteTeamMap[game.job][game.leaderCount]["disagree"]
+        name in game.voteTeamMap[job][leaderCount]["agree"]
+        or name in game.voteTeamMap[job][leaderCount]["disagree"]
     ):
         abort(400)
-    game.voteTeamMap[game.job][game.leaderCount][vote].append(name)
+    game.voteTeamMap[job][leaderCount][vote].append(name)
     return jsonify(
         game=room,
         players=games[room].players,
         leader=game.currentLeader,
-        leaderCount=game.leaderCount,
         team=game.team,
     )
 

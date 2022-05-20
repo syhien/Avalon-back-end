@@ -308,6 +308,26 @@ def voteTeam():
     ):
         abort(400)
     game.voteTeamMap[job][leaderCount][vote].append(name)
+    # 所有人投票完毕
+    if len(game.voteTeamMap[job][leaderCount]["agree"]) + len(
+        game.voteTeamMap[job][leaderCount]["disagree"]
+    ) == len(game.players):
+        # 投票不通过
+        if len(game.voteTeamMap[job][leaderCount]["agree"]) < len(
+            game.voteTeamMap[job][leaderCount]["disagree"]
+        ):
+            # 再进行一次投票
+            leaderCount += 1
+            if leaderCount not in game.voteTeamMap[job]:
+                game.voteTeamMap[job][leaderCount] = {
+                    "agree": [],
+                    "disagree": [],
+                }
+            # 如未产生新队长，产生新队长
+            if leaderCount not in game.leaderMap[job]:
+                game.leaderMap[job][leaderCount] = (
+                    game.leaderMap[job][leaderCount - 1] + 1
+                ) % len(game.players)
     return jsonify(
         game=room,
         players=games[room].players,

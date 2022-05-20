@@ -248,8 +248,8 @@ def formTeam():
     room = int(request.args.get("game"))
     game = games[room]
     name = request.args.get("name")
-    if name != game.players[game.currentLeader]:
-        abort(400)
+    # if name != game.players[game.currentLeader]:
+    #     abort(400)
     if request.args.get("team") is None:
         abort(404)
     team = request.args.getlist("team")

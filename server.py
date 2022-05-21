@@ -29,6 +29,7 @@ class Game:
         self.voteTeamMap = {}
         self.voteJobMap = {}
 
+
 server = Flask(__name__)
 server.secret_key = "secretKey"
 CORS(server)
@@ -340,6 +341,54 @@ def voteTeam():
         players=games[room].players,
         leader=game.currentLeader,
         team=game.team,
+    )
+
+
+# 查询任务完成情况
+@server.route("/voteJob", methods=["GET"])
+def getJob():
+    if (
+        request.args.get("game") is None
+        or request.args.get("name") is None
+        or request.args.get("job") is None
+    ):
+        abort(404)
+    room = int(request.args.get("game"))
+    game = games[room]
+    job = int(request.args.get("job"))
+    return jsonify(
+        game=room,
+        players=games[room].players,
+        team=game.team,
+        voteJobMap=game.voteJobMap[job],
+    )
+
+
+# 任务成员执行任务
+@server.route("/voteJob", methods=["POST"])
+def doJob():
+    if (
+        request.args.get("game") is None
+        or request.args.get("name") is None
+        or request.args.get("job") is None
+        or request.args.get("vote") is None
+    ):
+        abort(404)
+    room = int(request.args.get("game"))
+    game = games[room]
+    name = request.args.get("name")
+    job = int(request.args.get("job"))
+    vote = request.args.get("vote")
+    if vote not in ["pass", "fail"]:
+        abort(404)
+    if name in game.voteJobMap[job]["pass"] or name in game.voteJobMap[job]["fail"]:
+        abort(400)
+    game.voteJobMap[job][vote].append(name)
+    # TODO: 准备下个任务的阵容选择
+    return jsonify(
+        game=room,
+        team=game.team,
+        voteJobMap=game.voteJobMap[job],
     )
 
 

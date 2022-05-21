@@ -332,8 +332,8 @@ def voteTeam():
         # 投票通过，准备voteJobMap
         if job not in game.voteJobMap:
             game.voteJobMap[job] = {
-                "agree": [],
-                "disagree": [],
+                "pass": [],
+                "fail": [],
             }
     return jsonify(
         game=room,

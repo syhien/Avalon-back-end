@@ -27,7 +27,7 @@ class Game:
         # 4: result
         self.stage = 0
         self.voteTeamMap = {}
-
+        self.voteJobMap = {}
 
 server = Flask(__name__)
 server.secret_key = "secretKey"
@@ -328,6 +328,13 @@ def voteTeam():
                 game.leaderMap[job][leaderCount] = (
                     game.leaderMap[job][leaderCount - 1] + 1
                 ) % len(game.players)
+    else:
+        # 投票通过，准备voteJobMap
+        if job not in game.voteJobMap:
+            game.voteJobMap[job] = {
+                "agree": [],
+                "disagree": [],
+            }
     return jsonify(
         game=room,
         players=games[room].players,

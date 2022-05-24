@@ -384,7 +384,16 @@ def doJob():
     if name in game.voteJobMap[job]["pass"] or name in game.voteJobMap[job]["fail"]:
         abort(400)
     game.voteJobMap[job][vote].append(name)
-    # TODO: 准备下个任务的阵容选择
+    # 准备下一任务的队长
+    if job + 1 not in game.leaderMap:
+        lastLeader = list(game.leaderMap[job].values())[-1]
+        game.leaderMap[job + 1] = {}
+        game.leaderMap[job + 1][1] = (lastLeader + 1) % len(game.players)
+    if job + 1 not in game.voteJobMap:
+        game.voteJobMap[job + 1] = {
+            "pass": [],
+            "fail": [],
+        }
     return jsonify(
         game=room,
         team=game.team,
